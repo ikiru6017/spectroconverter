@@ -34,7 +34,7 @@ class Ui_MainWindow(object):
         path = os.path.dirname(os.path.abspath(__file__))
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1600, 900)
-        MainWindow.setBaseSize(QtCore.QSize(285, 260))      #sqws
+        MainWindow.setBaseSize(QtCore.QSize(285, 260))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         MainWindow.setStyleSheet("QMainWindow{background-color: qlineargradient(x2:2 y2:2, x1:0 y1:2, stop:0 #485563, stop:1 #29323c);}")
         MainWindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
