@@ -12,7 +12,6 @@ import matplotlib
 from time import sleep
 from tqdm import tqdm
 import io
-import threading
 matplotlib.use('Qt5Agg')
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
@@ -21,6 +20,10 @@ from matplotlib.figure import Figure
 class MplCanvas(FigureCanvasQTAgg):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):
+        """
+            initialize chart library
+        """
+
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
         super(MplCanvas, self).__init__(fig)
@@ -29,6 +32,9 @@ class MplCanvas(FigureCanvasQTAgg):
 class Ui_MainWindow(object):
     
     def setupUi(self, MainWindow):
+        """
+            initialize app interface
+        """
 
         self.MW = MainWindow
         path = os.path.dirname(os.path.abspath(__file__))
@@ -233,8 +239,6 @@ class Ui_MainWindow(object):
         self.stat.showMessage('Ready')
         self.stat.setStyleSheet("color: #ffffff; background: None")
         
-
-
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 288, 21))
@@ -314,7 +318,6 @@ class Ui_MainWindow(object):
         self.actionAdd.setShortcutVisibleInContextMenu(False)
         self.actionAdd.setObjectName("actionAdd")
 
-
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(r"icons\export_csv.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSave = QtWidgets.QAction(MainWindow)
@@ -365,17 +368,15 @@ class Ui_MainWindow(object):
         self.toolBar1.addSeparator()
         self.toolBar1.addWidget(self.openchartBtn)
 
-        
-        # self.actionRemove.triggered.connect(self.actRemove)
-        # self.actionUp.triggered.connect(self.actUp)
-        # self.actionDown.triggered.connect(self.actDown)
-        # self.actionSort.triggered.connect(self.actSort)
         self.retranslateUi(MainWindow)
         
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
 
     def retranslateUi(self, MainWindow):
+        """
+            Menu naming
+        """
 
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Spectroconverter"))
@@ -388,6 +389,9 @@ class Ui_MainWindow(object):
 
 
     def was_changed(self):
+        """
+            Mark for asking about saving file if something was changed
+        """
 
         self.changesCB.setChecked(True)
 
@@ -398,6 +402,10 @@ class Progress(QObject):
     progress = pyqtSignal(int)
 
     def run(self):
+        """
+            Progress bar in console
+        """
+
         sleep(3)
         for i in range(5):
             sleep(1)
@@ -409,6 +417,10 @@ class Progress(QObject):
 class MyMainWindow(QtWidgets.QMainWindow):
     
     def __init__(self, *args, **kwargs):
+        """
+            Initialize actions
+        """
+
         path = os.path.dirname(os.path.abspath(__file__))
         super().__init__(*args, **kwargs)
         self.ui = Ui_MainWindow()
@@ -432,12 +444,14 @@ class MyMainWindow(QtWidgets.QMainWindow):
         openchartBtn = self.ui.openchartBtn
         openchartBtn.clicked.connect(self.open_chart)
 
-        
-
-  
-
     alambda1 = []
     def actAdd(self):
+        """
+            Adding DATA files and calculate. 
+            Reference and black files are constant for one group of calculations from spectrophotometer.
+            Firstly, you need to write quantity of files, set time and write lambda value. Then, choose all DATA files from group and
+            wait until it`s done.
+        """
 
         rbdTbl = self.ui.rbdTbl
         resultTbl = self.ui.resultTbl
@@ -577,11 +591,18 @@ class MyMainWindow(QtWidgets.QMainWindow):
         #     sleep(.1)
     
     def report_progress(self, file):
+        """
+            Checking progress
+        """
+
         stat = self.ui.stat
         stat.showMessage(f"Current file: {file}")
 
 
     def set_time(self):
+        """
+            Set time for 3rd column (secs). First you need to write quantity of DATA files
+        """
         
         timelambdaTbl = self.ui.timelambdaTbl
         files_cnt_le = self.ui.files_cnt_le
@@ -589,11 +610,11 @@ class MyMainWindow(QtWidgets.QMainWindow):
         time_step_list = []
 
         timelambdaTbl.setRowCount(int(files_cnt_le.text()))
-        a = datetime.datetime(100, 1, 1, 0, 00, 00)
+        time_point = datetime.datetime(100, 1, 1, 0, 00, 00)
 
-        for b in range(0, int(files_cnt_le.text())):
-            time_step_list.append('{:02}'.format(int(a.minute))+':'+'{:02}'.format(int(a.second)))
-            a = a + datetime.timedelta(0, int(time_step_le.text()))       
+        for _ in range(0, int(files_cnt_le.text())):
+            time_step_list.append('{:02}'.format(int(time_point.minute))+':'+'{:02}'.format(int(time_point.second)))
+            time_point = time_point + datetime.timedelta(0, int(time_step_le.text()))       
         
         for tm_row, one_tm_val in enumerate(time_step_list):
             tm_newItem = QTableWidgetItem(one_tm_val)
@@ -601,6 +622,10 @@ class MyMainWindow(QtWidgets.QMainWindow):
 
 
     def create_chart(self):
+        """
+            Creating chart by values from 3rd column
+        """
+
         rbdTbl = self.ui.rbdTbl
         resultTbl = self.ui.resultTbl
         timelambdaTbl = self.ui.timelambdaTbl
@@ -624,6 +649,9 @@ class MyMainWindow(QtWidgets.QMainWindow):
 
 
     def open_chart(self):
+        """
+            Open chart in fullsized mode
+        """
         
         gridLayout = self.ui.gridLayout
         chart2 = self.ui.canvas2
@@ -632,6 +660,10 @@ class MyMainWindow(QtWidgets.QMainWindow):
 
         
     def save_csv(self):
+        """
+            Save calculated values from 3rd column to csv file
+        """
+
         resultTbl = self.ui.resultTbl
         timelambdaTbl = self.ui.timelambdaTbl
         # path = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', '', 'CSV(*.csv)')
@@ -640,16 +672,6 @@ class MyMainWindow(QtWidgets.QMainWindow):
         cur_date = datetime.toString('dd.MM.yyyy hh.mm.ss')
         with open('result '+cur_date+'.csv', 'w') as stream:
             writer = csv.writer(stream, dialect='excel', delimiter=';', lineterminator='\n')
-            # for row in range(resultTbl.rowCount()):
-            #     rowdata = []
-            #     for column in range(resultTbl.columnCount()):
-            #         item = resultTbl.item(row, column)
-            #         if item is not None:
-            #             rowdata.append(item.text())
-            #         else:
-            #             rowdata.append('')
-            #     writer.writerow(rowdata)
-
             for row in range(timelambdaTbl.rowCount()):
                 rowdata = []
                 for column in range(timelambdaTbl.columnCount()):
